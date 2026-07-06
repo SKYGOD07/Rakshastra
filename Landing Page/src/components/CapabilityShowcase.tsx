@@ -237,13 +237,12 @@ export default function CapabilityShowcase() {
         }
         .showcase-viewport {
           position: relative;
-          background: rgba(26, 25, 24, 0.4);
+          background: var(--bg-2);
           border: 1px solid rgba(255, 255, 255, 0.05);
           border-radius: var(--radius);
           height: 380px;
           overflow: hidden;
           box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.5), 0 20px 40px rgba(0,0,0,0.3);
-          backdrop-filter: blur(10px);
         }
         @media (min-width: 900px) {
           .showcase-viewport {
@@ -559,15 +558,15 @@ export default function CapabilityShowcase() {
                   {/* SVG paths for connection links */}
                   <svg style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}>
                     {/* Gemini to Telegram */}
-                    <line x1="150" y1="130" x2="60" y2="70" stroke={hoveredNode === "telegram" ? "var(--sky)" : "var(--bg-4)"} strokeWidth={hoveredNode === "telegram" ? 2.5 : 1} />
+                    <line x1="150" y1="130" x2="60" y2="70" stroke={hoveredNode === "telegram" ? "var(--sky)" : "var(--bg-4)"} strokeWidth={hoveredNode === "telegram" ? 2.5 : 1} style={{ transition: "stroke 0.25s ease, stroke-width 0.25s ease" }} />
                     {/* Gemini to WhatsApp */}
-                    <line x1="150" y1="130" x2="240" y2="70" stroke={hoveredNode === "whatsapp" ? "var(--green)" : "var(--bg-4)"} strokeWidth={hoveredNode === "whatsapp" ? 2.5 : 1} />
+                    <line x1="150" y1="130" x2="240" y2="70" stroke={hoveredNode === "whatsapp" ? "var(--green)" : "var(--bg-4)"} strokeWidth={hoveredNode === "whatsapp" ? 2.5 : 1} style={{ transition: "stroke 0.25s ease, stroke-width 0.25s ease" }} />
                     {/* Gemini to Instagram */}
-                    <line x1="150" y1="130" x2="150" y2="210" stroke={hoveredNode === "instagram" ? "var(--pink)" : "var(--bg-4)"} strokeWidth={hoveredNode === "instagram" ? 2.5 : 1} />
+                    <line x1="150" y1="130" x2="150" y2="210" stroke={hoveredNode === "instagram" ? "var(--pink)" : "var(--bg-4)"} strokeWidth={hoveredNode === "instagram" ? 2.5 : 1} style={{ transition: "stroke 0.25s ease, stroke-width 0.25s ease" }} />
                     
                     {/* Cross links */}
-                    <line x1="60" y1="70" x2="150" y2="210" stroke={hoveredNode === "shared" ? "var(--coral)" : "var(--bg-3)"} strokeWidth={hoveredNode === "shared" ? 2 : 0.8} />
-                    <line x1="240" y1="70" x2="150" y2="210" stroke={hoveredNode === "shared" ? "var(--coral)" : "var(--bg-3)"} strokeWidth={hoveredNode === "shared" ? 2 : 0.8} />
+                    <line x1="60" y1="70" x2="150" y2="210" stroke={hoveredNode === "shared" ? "var(--coral)" : "var(--bg-3)"} strokeWidth={hoveredNode === "shared" ? 2 : 0.8} style={{ transition: "stroke 0.25s ease, stroke-width 0.25s ease" }} />
+                    <line x1="240" y1="70" x2="150" y2="210" stroke={hoveredNode === "shared" ? "var(--coral)" : "var(--bg-3)"} strokeWidth={hoveredNode === "shared" ? 2 : 0.8} style={{ transition: "stroke 0.25s ease, stroke-width 0.25s ease" }} />
                   </svg>
 
                   {/* Core Gemini Node */}
@@ -585,10 +584,11 @@ export default function CapabilityShowcase() {
                       alignItems: "center",
                       justifyContent: "center",
                       color: "#1a1918",
-                      boxShadow: "0 0 15px rgba(255, 125, 54, 0.4)",
+                      boxShadow: hoveredNode === "core" ? "0 0 20px rgba(255, 125, 54, 0.6)" : "0 0 15px rgba(255, 125, 54, 0.4)",
                       fontSize: "0.62rem",
                       fontWeight: "bold",
-                      cursor: "pointer"
+                      cursor: "pointer",
+                      transition: "all 0.25s cubic-bezier(0.16, 1, 0.3, 1)",
                     }}
                     onMouseEnter={() => setHoveredNode("core")}
                     onMouseLeave={() => setHoveredNode(null)}
@@ -612,19 +612,20 @@ export default function CapabilityShowcase() {
                       alignItems: "center",
                       justifyContent: "center",
                       color: hoveredNode === "telegram" ? "var(--sky)" : "var(--fg-2)",
-                      boxShadow: hoveredNode === "telegram" ? "0 0 10px var(--sky)" : "none",
+                      boxShadow: hoveredNode === "telegram" ? "0 0 15px var(--sky)" : "none",
                       fontSize: "0.6rem",
-                      cursor: "pointer"
+                      cursor: "pointer",
+                      transition: "all 0.25s cubic-bezier(0.16, 1, 0.3, 1)",
                     }}
                     onMouseEnter={() => setHoveredNode("telegram")}
                     onMouseLeave={() => setHoveredNode(null)}
                   >
                     <img 
-                      src="/telegram.png" 
-                      alt="Telegram" 
-                      width="20" 
-                      height="20" 
-                      style={{ objectFit: "contain" }} 
+                       src="/telegram.png" 
+                       alt="Telegram" 
+                       width="20" 
+                       height="20" 
+                       style={{ objectFit: "contain" }} 
                     />
                   </div>
 
@@ -644,19 +645,20 @@ export default function CapabilityShowcase() {
                       alignItems: "center",
                       justifyContent: "center",
                       color: hoveredNode === "whatsapp" ? "var(--green)" : "var(--fg-2)",
-                      boxShadow: hoveredNode === "whatsapp" ? "0 0 10px var(--green)" : "none",
+                      boxShadow: hoveredNode === "whatsapp" ? "0 0 15px var(--green)" : "none",
                       fontSize: "0.6rem",
-                      cursor: "pointer"
+                      cursor: "pointer",
+                      transition: "all 0.25s cubic-bezier(0.16, 1, 0.3, 1)",
                     }}
                     onMouseEnter={() => setHoveredNode("whatsapp")}
                     onMouseLeave={() => setHoveredNode(null)}
                   >
                     <img 
-                      src="/whatsapp.png" 
-                      alt="WhatsApp" 
-                      width="20" 
-                      height="20" 
-                      style={{ objectFit: "contain" }} 
+                       src="/whatsapp.png" 
+                       alt="WhatsApp" 
+                       width="20" 
+                       height="20" 
+                       style={{ objectFit: "contain" }} 
                     />
                   </div>
 
@@ -676,51 +678,61 @@ export default function CapabilityShowcase() {
                       alignItems: "center",
                       justifyContent: "center",
                       color: hoveredNode === "instagram" ? "var(--pink)" : "var(--fg-2)",
-                      boxShadow: hoveredNode === "instagram" ? "0 0 10px var(--pink)" : "none",
+                      boxShadow: hoveredNode === "instagram" ? "0 0 15px var(--pink)" : "none",
                       fontSize: "0.6rem",
-                      cursor: "pointer"
+                      cursor: "pointer",
+                      transition: "all 0.25s cubic-bezier(0.16, 1, 0.3, 1)",
                     }}
                     onMouseEnter={() => setHoveredNode("instagram")}
                     onMouseLeave={() => setHoveredNode(null)}
                   >
                     <img 
-                      src="/instagram.png" 
-                      alt="Instagram" 
-                      width="20" 
-                      height="20" 
-                      style={{ objectFit: "contain" }} 
+                       src="/instagram.png" 
+                       alt="Instagram" 
+                       width="20" 
+                       height="20" 
+                       style={{ objectFit: "contain" }} 
                     />
                   </div>
 
                   {/* Tooltip Overlay */}
-                  {hoveredNode && (
-                    <div style={{
-                      position: "absolute",
-                      bottom: "8px",
-                      left: "8px",
-                      right: "8px",
-                      background: "var(--bg-2)",
-                      border: "1px solid var(--bg-4)",
-                      padding: "6px 10px",
-                      borderRadius: "6px",
-                      fontFamily: "var(--font-mono)",
-                      fontSize: "0.58rem",
-                      color: "var(--fg-3)"
-                    }}>
-                      {hoveredNode === "core" && (
-                        <div><strong style={{ color: "var(--coral)" }}>AI CORRELATION ENGINE:</strong> Resolving connections dynamically across multi-platform feeds.</div>
-                      )}
-                      {hoveredNode === "telegram" && (
-                        <div><strong style={{ color: "var(--sky)" }}>TELEGRAM SUIC_ID:</strong> @SpeedyNarc. Connected to IG profile via matching timestamp fingerprints.</div>
-                      )}
-                      {hoveredNode === "whatsapp" && (
-                        <div><strong style={{ color: "var(--green)" }}>WHATSAPP ENCRYPT:</strong> +1 (555) 302-8812. Target location matches drop zones.</div>
-                      )}
-                      {hoveredNode === "instagram" && (
-                        <div><strong style={{ color: "var(--pink)" }}>INSTA DM LINK:</strong> narc_vibes_2. Sharing Telegram channel bio links.</div>
-                      )}
-                    </div>
-                  )}
+                  <AnimatePresence>
+                    {hoveredNode && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 5 }}
+                        transition={{ duration: 0.2 }}
+                        style={{
+                          position: "absolute",
+                          bottom: "8px",
+                          left: "8px",
+                          right: "8px",
+                          background: "var(--bg-2)",
+                          border: "1px solid var(--bg-4)",
+                          padding: "6px 10px",
+                          borderRadius: "6px",
+                          fontFamily: "var(--font-mono)",
+                          fontSize: "0.58rem",
+                          color: "var(--fg-3)",
+                          pointerEvents: "none"
+                        }}
+                      >
+                        {hoveredNode === "core" && (
+                          <div><strong style={{ color: "var(--coral)" }}>AI CORRELATION ENGINE:</strong> Resolving connections dynamically across multi-platform feeds.</div>
+                        )}
+                        {hoveredNode === "telegram" && (
+                          <div><strong style={{ color: "var(--sky)" }}>TELEGRAM SUIC_ID:</strong> @SpeedyNarc. Connected to IG profile via matching timestamp fingerprints.</div>
+                        )}
+                        {hoveredNode === "whatsapp" && (
+                          <div><strong style={{ color: "var(--green)" }}>WHATSAPP ENCRYPT:</strong> +1 (555) 302-8812. Target location matches drop zones.</div>
+                        )}
+                        {hoveredNode === "instagram" && (
+                          <div><strong style={{ color: "var(--pink)" }}>INSTA DM LINK:</strong> narc_vibes_2. Sharing Telegram channel bio links.</div>
+                        )}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
 
                 </div>
               </motion.div>

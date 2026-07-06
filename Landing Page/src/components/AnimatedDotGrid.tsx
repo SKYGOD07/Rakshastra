@@ -79,9 +79,19 @@ export default function AnimatedDotGrid() {
       const rect = c.getBoundingClientRect();
       mouseRef.current = { x: e.clientX - rect.left, y: e.clientY - rect.top };
     };
+    const onTouch = (e: TouchEvent) => {
+      if (!c || e.touches.length === 0) return;
+      const rect = c.getBoundingClientRect();
+      const touch = e.touches[0];
+      mouseRef.current = { x: touch.clientX - rect.left, y: touch.clientY - rect.top };
+    };
     const onLeave = () => { mouseRef.current = { x: -9999, y: -9999 }; };
+
     c?.addEventListener("mousemove", onMove);
     c?.addEventListener("mouseleave", onLeave);
+    c?.addEventListener("touchstart", onTouch, { passive: true });
+    c?.addEventListener("touchmove", onTouch, { passive: true });
+    c?.addEventListener("touchend", onLeave);
 
     // Periodic radial wave bursts
     let waveTimer: NodeJS.Timeout;
@@ -216,6 +226,9 @@ export default function AnimatedDotGrid() {
       window.removeEventListener("resize", init);
       c?.removeEventListener("mousemove", onMove);
       c?.removeEventListener("mouseleave", onLeave);
+      c?.removeEventListener("touchstart", onTouch);
+      c?.removeEventListener("touchmove", onTouch);
+      c?.removeEventListener("touchend", onLeave);
     };
   }, [init]);
 

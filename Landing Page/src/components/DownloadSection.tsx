@@ -3,14 +3,13 @@
 import React, { useState, useEffect } from "react";
 
 const downloadDetails = {
-  windows: { name: "rakshastra_agent_win_x64.zip", size: "84.6 MB" },
+  windows: { name: "rakshastra_agent_win_x64.zip", size: "48 KB" },
   linux: { name: "rakshastra_agent_linux_x64.tar.gz", size: "34.2 MB" },
   macos: { name: "rakshastra_agent_mac_universal.dmg", size: "41.8 MB" },
 };
 
 export default function DownloadSection() {
   const [copied, setCopied] = useState(false);
-  const [cmdCopied, setCmdCopied] = useState(false);
   const [modal, setModal] = useState(false);
   const [progress, setProgress] = useState(0);
   const [dlInfo, setDlInfo] = useState(downloadDetails.windows);
@@ -24,7 +23,7 @@ export default function DownloadSection() {
   }, []);
 
   const handleCopy = () => {
-    navigator.clipboard.writeText("curl -sS https://rakshastra.vercel.app/install.sh | bash");
+    navigator.clipboard.writeText("curl -sS https://get.rakshastra.ai/install.sh | bash");
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -36,36 +35,28 @@ export default function DownloadSection() {
     setStatus("Connecting...");
     setModal(true);
 
-    const duration = 2000;
-    const intervalTime = 50;
-    const totalSteps = duration / intervalTime;
-    const inc = 100 / totalSteps;
-    let currentProgress = 0;
-
+    const inc = 50 / 2000 * 100;
     const id = setInterval(() => {
-      currentProgress += inc;
-      if (currentProgress >= 100) {
-        clearInterval(id);
-        setProgress(100);
-        setStatus("Download complete");
-        // trigger real download once
-        const a = document.createElement("a");
-        a.href = `/${info.name}`;
-        a.download = info.name;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-      } else {
-        setProgress(currentProgress);
-        if (currentProgress > 5 && currentProgress < 30) {
-          setStatus("Downloading agent core...");
-        } else if (currentProgress >= 30 && currentProgress < 80) {
-          setStatus(`Downloading (${Math.floor(currentProgress)}%)...`);
-        } else if (currentProgress >= 80) {
-          setStatus("Verifying signatures...");
+      setProgress((p) => {
+        const next = p + inc;
+        if (next >= 100) {
+          clearInterval(id);
+          setStatus("Download complete");
+          // trigger real download
+          const a = document.createElement("a");
+          a.href = `/${info.name}`;
+          a.download = info.name;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          return 100;
         }
-      }
-    }, intervalTime);
+        if (next > 5 && next < 30) setStatus("Downloading agent core...");
+        else if (next >= 30 && next < 80) setStatus(`Downloading (${Math.floor(next)}%)...`);
+        else if (next >= 80) setStatus("Verifying signatures...");
+        return next;
+      });
+    }, 50);
 
     (window as any).__dlInterval = id;
   };
@@ -135,7 +126,7 @@ export default function DownloadSection() {
       </div>
 
       <div className="cli-box anim-fade-up anim-d3">
-        <code>curl -sS https://rakshastra.vercel.app/install.sh | bash</code>
+        <code>curl -sS https://get.rakshastra.ai/install.sh | bash</code>
         <button className="btn-secondary" onClick={handleCopy} style={{ whiteSpace: 'nowrap' }}>
           {copied ? "Copied!" : "Copy"}
         </button>
@@ -143,48 +134,16 @@ export default function DownloadSection() {
 
       {modal && (
         <div className="modal-backdrop" onClick={(e) => e.target === e.currentTarget && closeModal()}>
-          <div className="modal" style={{ position: 'relative', maxWidth: '500px', width: '90%' }}>
+          <div className="modal" style={{ position: 'relative' }}>
             <button className="modal-close" onClick={closeModal}>&times;</button>
-            <h3>{progress >= 100 ? "Installation Command" : "Downloading Installer"}</h3>
-            <div className="progress-track" style={{ marginBottom: '1.25rem' }}>
+            <h3>Downloading Agent</h3>
+            <div className="progress-track">
               <div className="progress-fill" style={{ width: `${progress}%` }} />
             </div>
-            <div className="modal-meta" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <div className="modal-meta">
               <div>File: <span>{dlInfo.name}</span></div>
               <div>Size: <span>{dlInfo.size}</span></div>
-              <div>Status: <span style={{ color: progress >= 100 ? "var(--green)" : "var(--accent)" }}>{status}</span></div>
-              
-              {progress >= 100 && (
-                <div style={{ marginTop: '0.5rem', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '1rem', width: '100%', textAlign: 'left' }}>
-                  {dlInfo.name.endsWith(".zip") && (
-                    <>
-                      <p style={{ fontSize: '0.8rem', color: 'var(--fg-2)', marginBottom: '0.5rem' }}>
-                        Extract the downloaded ZIP archive and double-click the installer executable inside to set up the Rakshastra Cyber Defense Agent, or run:
-                      </p>
-                      <pre style={{ background: 'var(--bg-1)', padding: '0.6rem 0.8rem', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.05)', fontSize: '0.72rem', color: '#ff7d36', fontFamily: 'var(--font-mono)', overflowX: 'auto' }}>
-                        Expand-Archive {dlInfo.name} -DestinationPath .\rakshastra-setup
-                      </pre>
-                    </>
-                  )}
-                  {dlInfo.name.endsWith(".dmg") && (
-                    <>
-                      <p style={{ fontSize: '0.8rem', color: 'var(--fg-2)', marginBottom: '0.5rem' }}>
-                        Open the downloaded DMG archive and drag the Rakshastra app to your Applications folder.
-                      </p>
-                    </>
-                  )}
-                  {dlInfo.name.endsWith(".tar.gz") && (
-                    <>
-                      <p style={{ fontSize: '0.8rem', color: 'var(--fg-2)', marginBottom: '0.5rem' }}>
-                        Extract the archive and run the setup script:
-                      </p>
-                      <pre style={{ background: 'var(--bg-1)', padding: '0.6rem 0.8rem', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.05)', fontSize: '0.72rem', color: '#ff7d36', fontFamily: 'var(--font-mono)', overflowX: 'auto' }}>
-                        tar -xzf {dlInfo.name} && cd rakshastra-agent && ./setup.sh
-                      </pre>
-                    </>
-                  )}
-                </div>
-              )}
+              <div>Status: <span style={{ color: progress >= 100 ? "var(--accent-4)" : "var(--accent-2)" }}>{status}</span></div>
             </div>
           </div>
         </div>

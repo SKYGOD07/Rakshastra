@@ -195,8 +195,12 @@ const CrowdCanvas = ({ src, rows = 15, cols = 7 }: CrowdCanvasProps) => {
     };
 
     const initCrowd = () => {
-      while (availablePeeps.length) {
+      // Limit crowd size on mobile to avoid performance throttle and overcrowding
+      const limit = window.innerWidth < 768 ? 30 : availablePeeps.length;
+      let count = 0;
+      while (availablePeeps.length && count < limit) {
         addPeepToCrowd().walk.progress(Math.random());
+        count++;
       }
     };
 

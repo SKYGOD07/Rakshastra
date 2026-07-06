@@ -9,9 +9,7 @@ export default function Header() {
     <header className="site-header">
       <div className="header-inner">
         <a href="/" className="logo">
-          <span className="logo-mark" style={{ background: 'transparent' }}>
-            <img src="/logo.png" alt="Rakshastra Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-          </span>
+          <img src="/logo.png" alt="Rakshastra Logo" style={{ width: "24px", height: "24px", objectFit: "contain" }} />
           Rakshastra
         </a>
 

@@ -122,6 +122,7 @@ export default function InteractiveThreatVisualizer({ borderless = false }: Inte
     let animId: number;
     let time = 0;
     const ctx = canvas.getContext("2d");
+    let radarGrad: CanvasGradient | null = null;
 
     const resize = () => {
       const container = containerRef.current;
@@ -131,7 +132,13 @@ export default function InteractiveThreatVisualizer({ borderless = false }: Inte
       const h = container.offsetHeight || 380;
       canvas.width = w * dpr;
       canvas.height = h * dpr;
-      if (ctx) ctx.scale(dpr, dpr);
+      if (ctx) {
+        ctx.scale(dpr, dpr);
+        // Pre-create and cache the gradient to avoid allocation in draw loop
+        radarGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, Math.min(w, h) * 0.5);
+        radarGrad.addColorStop(0, "rgba(255, 125, 54, 0.08)");
+        radarGrad.addColorStop(1, "rgba(0, 0, 0, 0)");
+      }
     };
 
     resize();
@@ -167,19 +174,18 @@ export default function InteractiveThreatVisualizer({ borderless = false }: Inte
       ctx.stroke();
 
       // Sweeping radar beam
-      ctx.save();
-      ctx.translate(w / 2, h / 2);
-      ctx.rotate(time * 0.8);
-      const grad = ctx.createRadialGradient(0, 0, 0, 0, 0, Math.min(w, h) * 0.5);
-      grad.addColorStop(0, "rgba(255, 125, 54, 0.08)");
-      grad.addColorStop(1, "rgba(0, 0, 0, 0)");
-      ctx.fillStyle = grad;
-      ctx.beginPath();
-      ctx.moveTo(0, 0);
-      ctx.arc(0, 0, Math.min(w, h) * 0.5, -0.2, 0.2);
-      ctx.closePath();
-      ctx.fill();
-      ctx.restore();
+      if (radarGrad) {
+        ctx.save();
+        ctx.translate(w / 2, h / 2);
+        ctx.rotate(time * 0.8);
+        ctx.fillStyle = radarGrad;
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.arc(0, 0, Math.min(w, h) * 0.5, -0.2, 0.2);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+      }
 
       // 2. Update and draw links between nodes
       const nodes = nodesRef.current;
@@ -232,8 +238,10 @@ export default function InteractiveThreatVisualizer({ borderless = false }: Inte
         }
       }
 
-      // 3. Update, clamp boundaries, and draw nodes
-      nodes.forEach((node) => {
+      // 3. Update, clamp boundaries, and draw nodes (optimized standard for-loop to avoid closures)
+      const len = nodes.length;
+      for (let k = 0; k < len; k++) {
+        const node = nodes[k];
         // Apply physics
         node.x += node.vx;
         node.y += node.vy;
@@ -306,7 +314,7 @@ export default function InteractiveThreatVisualizer({ borderless = false }: Inte
         ctx.font = "10px var(--font-mono)";
         ctx.textAlign = "center";
         ctx.fillText(`${node.label}`, node.x, node.y - node.radius - 10);
-      });
+      }
 
       animId = requestAnimationFrame(draw);
     };

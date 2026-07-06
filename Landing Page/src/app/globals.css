@@ -324,45 +324,12 @@ html {
 }
 
 body {
-  background: #050505;
+  background: linear-gradient(-45deg, #050505, #0a0908, #121110, #050505);
+  background-size: 400% 400%;
+  animation: gradientBG 15s ease infinite;
   color: var(--fg-1);
   font-family: var(--font-body);
   line-height: 1.65;
-  position: relative;
-  overflow-x: hidden;
-}
-
-/* Deep ambient glow layer — large soft radial blurs for depth */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background:
-    radial-gradient(ellipse 80% 50% at 20% 20%, rgba(255, 125, 54, 0.07) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 40% at 80% 10%, rgba(139, 92, 246, 0.05) 0%, transparent 50%),
-    radial-gradient(ellipse 70% 60% at 50% 80%, rgba(255, 75, 75, 0.04) 0%, transparent 50%),
-    radial-gradient(ellipse 50% 30% at 90% 60%, rgba(0, 255, 170, 0.03) 0%, transparent 40%);
-}
-
-/* Subtle noise texture for premium grain feel */
-body::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  opacity: 0.025;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-repeat: repeat;
-  background-size: 200px 200px;
-}
-
-/* Ensure content sits above the ambient layers */
-body > * {
-  position: relative;
-  z-index: 1;
 }
 
 a { color: inherit; text-decoration: none; }
@@ -1081,3 +1048,99 @@ a { color: inherit; text-decoration: none; }
 .scanning-dot {
   animation: scanPulse 1.5s infinite ease-in-out;
 }
+
+/* ========== Legal / Privacy & License Pages ========== */
+.legal-page-container {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 6rem 1.5rem 8rem;
+  position: relative;
+  z-index: 10;
+}
+@media (min-width: 640px) {
+  .legal-page-container {
+    padding: 7rem 2rem 10rem;
+  }
+}
+.back-link {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--coral);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.back-link:hover {
+  opacity: 0.8;
+  transform: translateX(-4px);
+}
+.legal-title {
+  font-size: clamp(2.5rem, 5vw, 3.5rem);
+  color: var(--fg-1);
+  margin-bottom: 0.5rem;
+  line-height: 1.15;
+}
+.legal-subtitle {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--fg-4);
+  margin-bottom: 3.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.legal-section {
+  margin-bottom: 3rem;
+}
+.legal-section h2 {
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  font-weight: 500;
+  color: var(--fg-1);
+  margin-bottom: 1rem;
+  line-height: 1.3;
+}
+.legal-section p {
+  font-size: 0.95rem;
+  color: var(--fg-2);
+  line-height: 1.75;
+}
+.legal-section p strong {
+  color: var(--fg-1);
+}
+.contact-box {
+  margin-top: 4rem;
+  padding: 1.75rem;
+  background: rgba(255, 125, 54, 0.02);
+  border: 1px solid rgba(255, 125, 54, 0.15);
+  border-radius: var(--radius);
+}
+.contact-box h3 {
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  color: var(--coral);
+  margin-bottom: 0.75rem;
+}
+.contact-box p {
+  font-size: 0.9rem;
+  color: var(--fg-2);
+  line-height: 1.65;
+}
+.disclaimer-block {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--orange);
+  background: rgba(255, 168, 40, 0.02);
+  border: 1px solid rgba(255, 168, 40, 0.15);
+  padding: 1.5rem;
+  border-radius: var(--radius);
+  white-space: pre-wrap;
+  line-height: 1.6;
+  margin-top: 1rem;
+  margin-bottom: 1.5rem;
+}
+

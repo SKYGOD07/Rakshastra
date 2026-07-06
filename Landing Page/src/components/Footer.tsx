@@ -1,27 +1,42 @@
+"use client";
+
 import React from "react";
+import Link from "next/link";
+import { Magnetic } from "./Magnetic";
 
 export default function Footer() {
   return (
     <footer className="site-footer">
       <div className="footer-inner">
-        <span className="logo" style={{ fontSize: '1rem' }}>
-          <span className="logo-mark" style={{ width: 22, height: 22, background: 'transparent' }}>
-            <img src="/logo.png" alt="Rakshastra Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+        <Magnetic>
+          <span className="logo" style={{ fontSize: '1rem', cursor: 'default', display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+            <img src="/logo.png" alt="Rakshastra Logo" style={{ width: "22px", height: "22px", objectFit: "contain" }} />
+            Rakshastra
           </span>
-          Rakshastra
-        </span>
+        </Magnetic>
 
         <div className="footer-links">
-          <a href="#" className="footer-link">GitHub</a>
-          <a href="#" className="footer-link">Docs</a>
-          <a href="/privacy" className="footer-link">Privacy Policy</a>
-          <a href="/license" className="footer-link">License</a>
+          <Magnetic>
+            <a href="#" className="footer-link">GitHub</a>
+          </Magnetic>
+          <Magnetic>
+            <Link href="/docs" className="footer-link">Docs</Link>
+          </Magnetic>
+          <Magnetic>
+            <Link href="/privacy" className="footer-link">Privacy</Link>
+          </Magnetic>
+          <Magnetic>
+            <Link href="/license" className="footer-link">License</Link>
+          </Magnetic>
         </div>
 
-        <span className="footer-copy">
-          &copy; {new Date().getFullYear()} Rakshastra Project
-        </span>
+        <Magnetic>
+          <span className="footer-copy" style={{ cursor: 'default' }}>
+            &copy; {new Date().getFullYear()} Rakshastra Project
+          </span>
+        </Magnetic>
       </div>
     </footer>
   );
 }
+

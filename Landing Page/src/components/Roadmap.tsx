@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState, useCallback } from "react";
+import React, { useRef, useState, useCallback, useEffect } from "react";
 import { motion, useScroll, useTransform, useSpring, MotionValue } from "framer-motion";
 
 const cn = (...classes: any[]) => classes.filter(Boolean).join(" ");
@@ -268,15 +268,13 @@ const CharacterV1 = ({
   const x = useTransform(
     scrollYProgress,
     [0.05, 0.38],
-    [`${distanceFromCenter * 2.2}vw`, "0vw"],
-    { clamp: true }
+    [`${distanceFromCenter * 2.2}vw`, "0vw"]
   );
-  const opacity = useTransform(scrollYProgress, [0.05, 0.28], [0, 1], { clamp: true });
+  const opacity = useTransform(scrollYProgress, [0.05, 0.28], [0, 1]);
   const rotateY = useTransform(
     scrollYProgress,
     [0.05, 0.38],
-    [distanceFromCenter * 8, 0],
-    { clamp: true }
+    [distanceFromCenter * 40, 0]
   );
 
   return (
@@ -287,6 +285,7 @@ const CharacterV1 = ({
         opacity,
         rotateY,
         margin: isSpace ? "0 0.5rem" : "0 0.05rem",
+        willChange: "transform, opacity",
       }}
     >
       {char}
@@ -311,17 +310,15 @@ const CharacterV2 = ({
   const x = useTransform(
     scrollYProgress,
     [0.58, 0.88],
-    [`${distanceFromCenter * 4.5}vw`, "0vw"],
-    { clamp: true }
+    [`${distanceFromCenter * 4.5}vw`, "0vw"]
   );
-  const scale = useTransform(scrollYProgress, [0.58, 0.88], [0.6, 1], { clamp: true });
+  const scale = useTransform(scrollYProgress, [0.58, 0.88], [0.6, 1]);
   const y = useTransform(
     scrollYProgress,
     [0.58, 0.88],
-    [Math.abs(distanceFromCenter) * 32, 0],
-    { clamp: true }
+    [Math.abs(distanceFromCenter) * 32, 0]
   );
-  const opacity = useTransform(scrollYProgress, [0.55, 0.65], [0, 1], { clamp: true });
+  const opacity = useTransform(scrollYProgress, [0.55, 0.65], [0, 1]);
 
   return (
     <motion.div
@@ -333,6 +330,7 @@ const CharacterV2 = ({
         transformOrigin: "center",
         display: "inline-block",
         margin: "0 0.5vw",
+        willChange: "transform, opacity",
       }}
     >
       <IconComponent />
@@ -367,6 +365,7 @@ const StickyPhaseCard = ({
   progress,
   range,
   targetScale,
+  isMobile,
 }: {
   i: number;
   phase: string;
@@ -378,14 +377,16 @@ const StickyPhaseCard = ({
   progress: any;
   range: [number, number];
   targetScale: number;
+  isMobile: boolean;
 }) => {
   const container = useRef<HTMLDivElement>(null);
-  const scale = useTransform(progress, range, [1, targetScale], { clamp: true });
+  const scaleVal = useTransform(progress, range, [1, targetScale]);
+  const scale = isMobile ? 1 : scaleVal;
 
   return (
     <div
       ref={container}
-      className="sticky top-0 flex items-center justify-center w-full min-h-[70vh] py-12"
+      className={isMobile ? "relative flex items-center justify-center w-full py-3 px-1" : "sticky top-0 flex items-center justify-center w-full min-h-[70vh] py-12"}
       style={{
         zIndex: i + 1,
       }}
@@ -393,38 +394,39 @@ const StickyPhaseCard = ({
       <motion.div
         style={{
           scale,
-          top: `calc(10vh + ${i * 24}px)`,
+          top: isMobile ? 0 : `calc(10vh + ${i * 24}px)`,
+          backgroundColor: "var(--bg-3)",
+          willChange: "transform",
         }}
         className={cn(
-          "relative w-full max-w-5xl rounded-3xl overflow-hidden border border-[rgba(255,255,255,0.06)] shadow-2xl origin-top",
-          "bg-[rgba(20,19,18,0.7)] backdrop-blur-xl"
+          "relative w-full max-w-5xl rounded-3xl overflow-hidden border border-[rgba(255,255,255,0.06)] shadow-2xl origin-top"
         )}
       >
-        <div className="p-8 sm:p-10 md:p-12">
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+        <div className="p-6 sm:p-10 md:p-12">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-8 items-center">
             {/* Left Side: Title, Phase, Tagline & Main Description */}
             <div className="md:col-span-5 flex flex-col justify-center text-left">
               <span className={`roadmap-phase ${cls}`} style={{ display: "inline-block", width: "fit-content", marginBottom: "0.75rem" }}>
                 {phase}
               </span>
-              <h4 style={{ fontSize: "1.85rem", fontWeight: "800", color: "var(--fg-1)", marginBottom: "0.5rem", lineHeight: "1.2" }}>
+              <h4 style={{ fontSize: isMobile ? "1.5rem" : "1.85rem", fontWeight: "800", color: "var(--fg-1)", marginBottom: "0.5rem", lineHeight: "1.2" }}>
                 {title}
               </h4>
-              <p className="text-accent font-semibold mb-4" style={{ fontSize: "0.95rem" }}>
+              <p className="text-accent font-semibold mb-3 md:mb-4" style={{ fontSize: isMobile ? "0.9rem" : "0.95rem" }}>
                 {tagline}
               </p>
-              <p style={{ fontSize: "0.95rem", color: "var(--fg-3)", lineHeight: "1.6", margin: 0 }}>
+              <p style={{ fontSize: isMobile ? "0.85rem" : "0.95rem", color: "var(--fg-3)", lineHeight: "1.6", margin: 0 }}>
                 {desc}
               </p>
             </div>
 
             {/* Right Side: Key Deliverables list */}
-            <div className="md:col-span-7 flex flex-col justify-center gap-3.5 border-t md:border-t-0 md:border-l border-[rgba(255,255,255,0.06)] pt-6 md:pt-0 md:pl-8 text-left">
-              <span className="text-[0.75rem] uppercase tracking-wider text-accent font-mono mb-1 block">Key deliverables</span>
+            <div className="md:col-span-7 flex flex-col justify-center gap-3 border-t md:border-t-0 md:border-l border-[rgba(255,255,255,0.06)] pt-5 md:pt-0 md:pl-8 text-left">
+              <span className="text-[0.7rem] uppercase tracking-wider text-accent font-mono mb-1 block">Key deliverables</span>
               {bullets.map((bullet: string, bIdx: number) => (
-                <div key={bIdx} className="flex items-start gap-3">
+                <div key={bIdx} className="flex items-start gap-2.5">
                   <span className="text-accent text-sm mt-0.5 select-none">✓</span>
-                  <p style={{ fontSize: "0.9rem", color: "var(--fg-2)", lineHeight: "1.5", margin: 0 }}>
+                  <p style={{ fontSize: isMobile ? "0.85rem" : "0.9rem", color: "var(--fg-2)", lineHeight: "1.5", margin: 0 }}>
                     {bullet}
                   </p>
                 </div>
@@ -437,7 +439,7 @@ const StickyPhaseCard = ({
   );
 };
 
-const StickyPhasesTimeline = ({ phases }: { phases: any[] }) => {
+const StickyPhasesTimeline = ({ phases, isMobile }: { phases: any[]; isMobile: boolean }) => {
   const container = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: container,
@@ -447,7 +449,7 @@ const StickyPhasesTimeline = ({ phases }: { phases: any[] }) => {
   return (
     <div
       ref={container}
-      className="relative flex w-full flex-col items-center justify-center pt-8 pb-[10vh]"
+      className={isMobile ? "relative flex w-full flex-col items-center justify-center gap-5 pt-4 pb-8" : "relative flex w-full flex-col items-center justify-center pt-8 pb-[10vh]"}
     >
       {phases.map((p, i) => {
         // Calculate scaling factors so bottom cards stack behind top cards nicely
@@ -458,8 +460,9 @@ const StickyPhasesTimeline = ({ phases }: { phases: any[] }) => {
             i={i}
             {...p}
             progress={scrollYProgress}
-            range={[i * 0.2, (i + 1) * 0.2]}
+            range={[i * 0.2, 1]}
             targetScale={targetScale}
+            isMobile={isMobile}
           />
         );
       })}
@@ -469,6 +472,16 @@ const StickyPhasesTimeline = ({ phases }: { phases: any[] }) => {
 
 export default function Roadmap() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   // Track scroll position of the parent section
   const { scrollYProgress } = useScroll({
@@ -490,11 +503,89 @@ export default function Roadmap() {
 
   // Transforms to fade Stage 1 out and Stage 2 in inside the sticky viewport
   // Extended the hold duration of the text (fully visible until 0.55 progress) so it stays legible for longer
-  const textStageOpacity = useTransform(smoothProgress, [0.0, 0.55, 0.65], [1, 1, 0], { clamp: true });
-  const textStageScale = useTransform(smoothProgress, [0.0, 0.55, 0.65], [1, 1, 0.95], { clamp: true });
+  const textStageOpacity = useTransform(smoothProgress, [0.0, 0.55, 0.65], [1, 1, 0]);
+  const textStageScale = useTransform(smoothProgress, [0.0, 0.55, 0.65], [1, 1, 0.95]);
 
-  const iconStageOpacity = useTransform(smoothProgress, [0.55, 0.65, 0.98], [0, 1, 1], { clamp: true });
-  const iconStageY = useTransform(smoothProgress, [0.55, 0.65], [40, 0], { clamp: true });
+  const iconStageOpacity = useTransform(smoothProgress, [0.55, 0.65, 0.98], [0, 1, 1]);
+  const iconStageY = useTransform(smoothProgress, [0.55, 0.65], [40, 0]);
+
+  if (isMobile) {
+    return (
+      <section ref={containerRef} className="phases-section" id="roadmap" style={{ position: "relative", zIndex: 10 }}>
+        <style dangerouslySetInnerHTML={{__html: `
+          .phases-section {
+            padding: 4rem 1.5rem;
+            max-width: 1200px;
+            margin: 0 auto;
+          }
+          .phases-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            width: 100%;
+          }
+          .phase-card-wrapper {
+            display: flex;
+          }
+          .phase-card {
+            background: rgba(32, 31, 30, 0.45);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius);
+            padding: 2rem;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            transition: border-color 0.3s ease, background 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            text-align: left;
+            width: 100%;
+            height: 100%;
+          }
+          .phase-card:hover {
+            border-color: var(--accent);
+            background: rgba(40, 39, 38, 0.65);
+          }
+          html.light .phase-card {
+            background: rgba(255, 255, 255, 0.5);
+            border-color: rgba(0, 0, 0, 0.06);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.03);
+          }
+          html.light .phase-card:hover {
+            border-color: var(--accent);
+            background: rgba(255, 255, 255, 0.8);
+          }
+        `}} />
+
+        {/* 1. Integration Stack Section */}
+        <div style={{ textAlign: "center", marginBottom: "2rem" }}>
+          <span className="section-label">System Architecture</span>
+          <h3 className="section-heading" style={{ fontSize: "2rem", margin: "0.5rem 0", color: "var(--fg-1)" }}>
+            Core Integrations
+          </h3>
+        </div>
+
+        <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "0.75rem", marginBottom: "4rem", padding: "0 0.5rem" }}>
+          {macIcon.map((Icon, idx) => (
+            <div key={idx} style={{ transform: "scale(0.8)" }}>
+              <Icon />
+            </div>
+          ))}
+        </div>
+
+        {/* 2. Timeline Section */}
+        <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
+          <span className="section-label">Execution Strategy</span>
+          <h3 className="section-heading" style={{ fontSize: "2rem", margin: "0.5rem 0", color: "var(--fg-1)" }}>
+            Implementation Timeline
+          </h3>
+          <p className="section-desc">Five distinct phases designed for robust platform deployment.</p>
+        </div>
+
+        <StickyPhasesTimeline phases={phases} isMobile={isMobile} />
+      </section>
+    );
+  }
 
   return (
     <>
@@ -656,7 +747,7 @@ export default function Roadmap() {
             border-radius: var(--radius);
             padding: 2rem;
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
-            transition: border-color 0.3s ease, background 0.3s ease; /* Removed transform transition */
+            transition: border-color 0.3s ease, background 0.3s ease;
             display: flex;
             flex-direction: column;
             align-items: flex-start;
@@ -698,7 +789,7 @@ export default function Roadmap() {
           <p className="section-desc">Five distinct phases designed for robust platform deployment.</p>
         </div>
 
-        <StickyPhasesTimeline phases={phases} />
+        <StickyPhasesTimeline phases={phases} isMobile={isMobile} />
       </section>
     </>
   );

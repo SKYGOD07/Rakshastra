@@ -5,11 +5,12 @@
 
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13-blue.svg)](https://www.python.org/)
 [![Node.js 20+](https://img.shields.io/badge/node-%3E%3D20.0.0-brightgreen.svg)](https://nodejs.org/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Powered by Gemini](https://img.shields.io/badge/AI%20Core-Google%20Gemini%20Native-8E75B2.svg)](https://ai.google.dev/)
 [![Vector DB](https://img.shields.io/badge/RAG-Qdrant%20Vector%20DB-red.svg)](https://qdrant.tech/)
 [![x402 Micropayments](https://img.shields.io/badge/Payments-Algorand%20x402-teal.svg)](https://algorand.co/)
 [![Docker](https://img.shields.io/badge/Deployment-Docker%20Compose-2496ED.svg)](https://www.docker.com/)
+[![Code Style: Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 **Autonomous Threat Hunting • APT Attribution • Attack Prediction & Graph AI • Hybrid Threat Intel RAG • UEBA • SOAR Auto-Remediation • Omnichannel Security Gateway**
 
@@ -422,7 +423,7 @@ We welcome contributions from cybersecurity researchers, engineers, and AI devel
 
 ## 📄 License
 
-This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
+This project is licensed under the **MIT License** — see the [MIT License](https://opensource.org/licenses/MIT) for details.
 
 ---
 

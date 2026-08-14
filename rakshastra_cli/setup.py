@@ -192,7 +192,7 @@ def print_noninteractive_setup_guidance(reason: str | None = None) -> None:
     print()
 
 
-def prompt(question: str, default: str = None, password: bool = False) -> str:
+def prompt(question: str, default: str | None = None, password: bool = False) -> str:
     """Prompt for input with optional default."""
     if default:
         display = f"{question} [{default}]: "
@@ -329,7 +329,7 @@ def prompt_yes_no(question: str, default: bool = True) -> bool:
         print_error("Please enter 'y' or 'n'")
 
 
-def prompt_checklist(title: str, items: list, pre_selected: list = None) -> list:
+def prompt_checklist(title: str, items: list, pre_selected: list | None = None) -> list:
     """
     Display a multi-select checklist and return the indices of selected items.
 
@@ -1254,7 +1254,7 @@ def setup_terminal_backend(config: dict):
         from tools.managed_tool_gateway import is_managed_tool_gateway_ready
         from tools.tool_backend_helpers import normalize_modal_mode
 
-        managed_modal_available = bool(
+        managed_modal_available = (
             managed_nous_tools_enabled()
             and
             get_nous_subscription_features(config).nous_auth_present
@@ -1423,9 +1423,31 @@ def setup_terminal_backend(config: dict):
 
         # SSH key
         current_key = get_env_value("TERMINAL_SSH_KEY") or ""
-        default_key = str(Path.home() / ".ssh" / "id_rsa")
+        if current_key:
+            current_key = current_key.strip().strip("'\"").strip()
+            if current_key.lower().endswith(".pub"):
+                current_key = current_key[:-4]
+            if (
+                Path(current_key).name.lower() in {"known_hosts", "known_hosts.old", "config", "authorized_keys"}
+            ):
+                current_key = ""
+
+        default_key = ""
+        ssh_dir = Path.home() / ".ssh"
+        for candidate in ["id_ed25519", "id_rsa", "id_ecdsa", "id_dsa"]:
+            key_file = ssh_dir / candidate
+            if key_file.exists() and key_file.is_file():
+                default_key = str(key_file)
+                break
+        if not default_key:
+            default_key = str(ssh_dir / "id_rsa")
+
         ssh_key = prompt("  SSH private key path", current_key or default_key)
         if ssh_key:
+            ssh_key = ssh_key.strip().strip("'\"").strip()
+            if ssh_key.lower().endswith(".pub"):
+                ssh_key = ssh_key[:-4]
+                print_info(f"  Note: Using SSH private key path '{ssh_key}' (stripped .pub extension)")
             save_env_value("TERMINAL_SSH_KEY", ssh_key)
 
         # Test connection
@@ -1449,7 +1471,8 @@ def setup_terminal_backend(config: dict):
 
     # Sync terminal backend to .env so terminal_tool picks it up directly.
     # config.yaml is the source of truth, but terminal_tool reads TERMINAL_ENV.
-    save_env_value("TERMINAL_ENV", selected_backend)
+    if selected_backend:
+        save_env_value("TERMINAL_ENV", selected_backend)
     if selected_backend == "modal":
         save_env_value("TERMINAL_MODAL_MODE", config["terminal"].get("modal_mode", "auto"))
     save_config(config)
@@ -2171,7 +2194,7 @@ def setup_gateway(config: dict):
                     print_info("  You can try manually: rakshastra gateway install")
             else:
                 print_info("  You can install later: rakshastra gateway install")
-                if supports_systemd and os.geteuid() == 0:  # windows-footgun: ok — guarded by supports_systemd (Linux only)
+                if supports_systemd and getattr(os, "geteuid", lambda: -1)() == 0:  # windows-footgun: ok — guarded by supports_systemd (Linux only)
                     print_info("  Or as a boot-time service: rakshastra gateway install --system")
                 print_info("  Or run in foreground:  rakshastra gateway")
         else:

@@ -48,7 +48,14 @@ class SSHEnvironment(BaseEnvironment):
         self.host = host
         self.user = user
         self.port = port
-        self.key_path = key_path
+        key_clean = (
+            key_path.strip().strip("'\"").strip()
+            if key_path and isinstance(key_path, str)
+            else (key_path or "")
+        )
+        if key_clean.lower().endswith(".pub"):
+            key_clean = key_clean[:-4]
+        self.key_path = os.path.expanduser(key_clean) if key_clean else ""
 
         self.control_dir = Path(tempfile.gettempdir()) / "rakshastra-ssh"
         self.control_dir.mkdir(parents=True, exist_ok=True)
@@ -269,7 +276,8 @@ class SSHEnvironment(BaseEnvironment):
                 raise
 
             # Allow tar_proc to receive SIGPIPE if ssh_proc exits early
-            tar_proc.stdout.close()
+            if tar_proc.stdout is not None:
+                tar_proc.stdout.close()
 
             try:
                 _, ssh_stderr = ssh_proc.communicate(timeout=120)
@@ -353,7 +361,7 @@ class SSHEnvironment(BaseEnvironment):
         return _popen_bash(cmd, stdin_data)
 
     def cleanup(self):
-        if self._sync_manager:
+        if self._sync_manager is not None:
             logger.info("SSH: syncing files from sandbox...")
             self._sync_manager.sync_back()
 

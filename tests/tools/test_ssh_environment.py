@@ -5,7 +5,7 @@ import os
 import subprocess
 from unittest.mock import MagicMock
 
-import pytest
+import pytest  # type: ignore
 
 from tools.environments.ssh import SSHEnvironment
 from tools.environments import ssh as ssh_env
@@ -61,6 +61,12 @@ class TestBuildSSHCommand:
         env = SSHEnvironment(host="h", user="u", key_path="/k")
         cmd = env._build_ssh_command()
         assert "-i" in cmd and "/k" in cmd
+
+    def test_key_path_strips_quotes(self):
+        env = SSHEnvironment(host="h", user="u", key_path='"C:\\Users\\user\\.ssh\\id_ed25519"')
+        assert env.key_path == "C:\\Users\\user\\.ssh\\id_ed25519"
+        cmd = env._build_ssh_command()
+        assert "-i" in cmd and "C:\\Users\\user\\.ssh\\id_ed25519" in cmd
 
     def test_user_host_suffix(self):
         env = SSHEnvironment(host="h", user="u")

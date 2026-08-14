@@ -8,6 +8,7 @@ import os
 import sys
 import subprocess
 import shutil
+import sqlite3
 from pathlib import Path
 
 from rakshastra_cli.config import get_project_root, get_rakshastra_home, get_env_path
@@ -205,7 +206,7 @@ def _enabled_cli_toolsets_for_doctor() -> set[str] | None:
         from rakshastra_cli.config import load_config
         from rakshastra_cli.tools_config import _get_platform_tools
 
-        return {str(toolset) for toolset in _get_platform_tools(load_config() or {}, "cli")}
+        return {toolset for toolset in _get_platform_tools(load_config() or {}, "cli")}
     except Exception:
         return None
 
@@ -334,8 +335,13 @@ def check_certificates() -> None:
     a wall of tracebacks on the first outbound HTTPS call.
     """
     try:
-        from agent.ssl_guard import verify_ca_bundle_with_fallback
         from agent.errors import SSLConfigurationError
+    except ImportError as e:
+        check_warn("SSL certificate check skipped", str(e))
+        return
+
+    try:
+        from agent.ssl_guard import verify_ca_bundle_with_fallback
         verify_ca_bundle_with_fallback()
         check_ok("SSL CA certificate bundle is valid")
     except SSLConfigurationError as e:
@@ -388,17 +394,18 @@ def _check_gateway_service_linger(issues: list[str]) -> None:
         check_warn("Could not verify systemd linger", f"({linger_detail})")
 
 
-_APIKEY_PROVIDERS_CACHE: list | None = None
+_ProviderEntry = tuple[str, tuple[str, ...], str | None, str | None, bool]
+_APIKEY_PROVIDERS_CACHE: list[_ProviderEntry] | None = None
 
 
-def _build_apikey_providers_list() -> list:
+def _build_apikey_providers_list() -> list[_ProviderEntry]:
     """Build the API-key provider health-check list once and cache it.
 
     Tuple format: (name, env_vars, default_url, base_env, supports_models_endpoint)
     Base list augmented with any ProviderProfile with auth_type="api_key" not
     already present — adding plugins/model-providers/<name>/ is sufficient to get into doctor.
     """
-    _static = [
+    _static: list[_ProviderEntry] = [
         ("Z.AI / GLM",      ("GLM_API_KEY", "ZAI_API_KEY", "Z_AI_API_KEY"), "https://api.z.ai/api/paas/v4/models", "GLM_BASE_URL", True),
         ("Kimi / Moonshot",  ("KIMI_API_KEY",),                              "https://api.moonshot.ai/v1/models",   "KIMI_BASE_URL", True),
         ("StepFun Step Plan", ("STEPFUN_API_KEY",),                          "https://api.stepfun.ai/step_plan/v1/models", "STEPFUN_BASE_URL", True),
@@ -736,7 +743,7 @@ def run_doctor(args):
 
         # Validate model.provider and model.default values
         try:
-            import yaml as _yaml
+            import yaml as _yaml  # type: ignore
             cfg = _yaml.safe_load(config_path.read_text(encoding="utf-8")) or {}
             model_section = cfg.get("model") or {}
             provider_raw = (model_section.get("provider") or "").strip()
@@ -878,8 +885,8 @@ def run_doctor(args):
                         from rakshastra_cli.config import get_env_value
 
                         configured = bool(
-                            str(get_env_value("OPENROUTER_API_KEY") or "").strip()
-                            or str(get_env_value("OPENAI_API_KEY") or "").strip()
+                            (get_env_value("OPENROUTER_API_KEY") or "").strip()
+                            or (get_env_value("OPENAI_API_KEY") or "").strip()
                         )
                     else:
                         from rakshastra_cli.auth import PROVIDER_REGISTRY, get_auth_status
@@ -956,7 +963,7 @@ def run_doctor(args):
 
         # Detect stale root-level model keys (known bug source — PR #4329)
         try:
-            import yaml
+            import yaml  # type: ignore
             with open(config_path, encoding="utf-8") as f:
                 raw_config = yaml.safe_load(f) or {}
             stale_root_keys = [k for k in ("provider", "base_url") if k in raw_config and isinstance(raw_config[k], str)]
@@ -1003,7 +1010,7 @@ def run_doctor(args):
         # Read the .env FILE directly (load_env), not get_env_value/os.environ,
         # which the startup bridge may already have overridden.
         try:
-            import yaml
+            import yaml  # type: ignore
             from rakshastra_cli.config import load_env, remove_env_value
             with open(config_path, encoding="utf-8") as f:
                 raw_config = yaml.safe_load(f) or {}
@@ -1020,7 +1027,7 @@ def run_doctor(args):
             drift = (
                 cfg_max_turns is not None
                 and env_ghost is not None
-                and str(cfg_max_turns).strip() != str(env_ghost).strip()
+                and str(cfg_max_turns).strip() != env_ghost.strip()
             )
             if drift:
                 check_warn(
@@ -1221,8 +1228,8 @@ def run_doctor(args):
     # Check SQLite session store
     state_db_path = rakshastra_home / "state.db"
     if state_db_path.exists():
+        import sqlite3
         try:
-            import sqlite3
             conn = sqlite3.connect(str(state_db_path))
             cursor = conn.execute("SELECT COUNT(*) FROM sessions")
             count = cursor.fetchone()[0]
@@ -1497,7 +1504,8 @@ def run_doctor(args):
             if ssh_port:
                 cmd += ["-p", ssh_port]
             if ssh_key:
-                cmd += ["-i", os.path.expanduser(ssh_key)]
+                ssh_key_clean = os.path.expanduser(ssh_key.strip().strip("'\"").strip())
+                cmd += ["-i", ssh_key_clean]
             cmd += [target, "echo ok"]
             # Try to connect
             try:
@@ -1534,7 +1542,7 @@ def run_doctor(args):
                 issues,
             )
         try:
-            from daytona import Daytona  # noqa: F401 — SDK presence check
+            from daytona import Daytona  # type: ignore # noqa: F401 — SDK presence check
             check_ok("daytona SDK", "(installed)")
         except ImportError:
             _fail_and_issue(
@@ -1986,8 +1994,8 @@ def run_doctor(args):
         region = resolve_bedrock_region()
         label = "AWS Bedrock".ljust(20)
         try:
-            import boto3
-            from botocore.config import Config as _BotoConfig
+            import boto3  # type: ignore
+            from botocore.config import Config as _BotoConfig  # type: ignore
             # Trim retries on the actual Bedrock API call so a transient
             # failure doesn't pad the doctor run by 30+ seconds.
             cfg = _BotoConfig(
@@ -2240,7 +2248,7 @@ def run_doctor(args):
     _section("Memory Provider")
     _active_memory_provider = ""
     try:
-        import yaml as _yaml
+        import yaml as _yaml  # type: ignore
         _mem_cfg_path = RAKSHASTRA_HOME / "config.yaml"
         if _mem_cfg_path.exists():
             with open(_mem_cfg_path, encoding="utf-8") as _f:

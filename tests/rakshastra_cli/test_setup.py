@@ -535,8 +535,47 @@ def test_prompt_yes_no_keyboard_interrupt_still_exits(monkeypatch):
 
     monkeypatch.setattr("builtins.input", _interrupt)
 
-    import pytest
+    import pytest  # type: ignore
 
     with pytest.raises(SystemExit):
         setup_mod.prompt_yes_no("Install it now?", True)
+
+
+def test_ssh_setup_strips_quotes_and_ignores_non_key_files(tmp_path, monkeypatch):
+    """setup_terminal_backend cleans quoted SSH key input and avoids defaulting to known_hosts."""
+    monkeypatch.setenv("RAKSHASTRA_HOME", str(tmp_path))
+    saved_env = {}
+    monkeypatch.setattr(setup_mod, "save_env_value", lambda k, v: saved_env.update({k: v}))
+    monkeypatch.setattr(setup_mod, "get_env_value", lambda k: saved_env.get(k, ""))
+
+    saved_env["TERMINAL_SSH_KEY"] = str(tmp_path / ".ssh" / "known_hosts")
+
+    def fake_prompt_choice(question, choices, default=0):
+        if question == "Select terminal backend:":
+            return 3  # SSH
+        return default
+
+    prompts_asked = []
+    def fake_prompt(msg, default=""):
+        prompts_asked.append((msg, default))
+        if "SSH host" in msg:
+            return "139.84.163.180"
+        if "SSH user" in msg:
+            return "root"
+        if "SSH port" in msg:
+            return "22"
+        if "SSH private key path" in msg:
+            return '"C:\\Users\\adity\\.ssh\\id_ed25519"'
+        return default
+
+    monkeypatch.setattr(setup_mod, "prompt_choice", fake_prompt_choice)
+    monkeypatch.setattr(setup_mod, "prompt", fake_prompt)
+    monkeypatch.setattr(setup_mod, "prompt_yes_no", lambda *a, **k: False)
+
+    config = load_config()
+    setup_mod.setup_terminal_backend(config)
+
+    assert saved_env["TERMINAL_SSH_KEY"] == "C:\\Users\\adity\\.ssh\\id_ed25519"
+    key_prompt = [p for p in prompts_asked if "SSH private key path" in p[0]][0]
+    assert "known_hosts" not in key_prompt[1]
 

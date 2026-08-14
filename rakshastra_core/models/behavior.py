@@ -35,6 +35,9 @@ class AnomalyCategory(str, Enum):
     APT_BEACONING = "APT_BEACONING"          # Periodic C2 callbacks with low jitter
     APT_STAGING = "APT_STAGING"              # Unusual file access patterns pre-exfiltration
     APT_C2_COMMUNICATION = "APT_C2_COMMUNICATION"  # DNS tunneling / encoded payloads
+    AUTHENTICATION = "AUTHENTICATION"
+    PROCESS_EXECUTION = "PROCESS_EXECUTION"
+    NETWORK_BEACON = "NETWORK_BEACON"
 
 
 @dataclass
@@ -61,7 +64,10 @@ class BehaviorBaseline(RakshastraModel):
     def from_dict(cls, data: dict):
         d = dict(data)
         if "entity_type" in d and isinstance(d["entity_type"], str):
-            d["entity_type"] = EntityType(d["entity_type"])
+            try:
+                d["entity_type"] = EntityType(d["entity_type"])
+            except ValueError:
+                pass
         return cls(**d)
 
 

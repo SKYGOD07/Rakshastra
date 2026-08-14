@@ -184,38 +184,33 @@ function ChatRouteSink() {
 const BUILTIN_NAV_REST: NavItem[] = [
   {
     path: "/monitor",
-    label: "Monitor",
+    label: "Command Center",
     icon: Activity,
   },
   {
     path: "/ueba",
-    label: "UEBA Anomaly",
+    label: "1. Behavioral Anomaly",
     icon: Activity,
   },
   {
     path: "/apt-dashboard",
-    label: "APT Attribution",
+    label: "2. APT Threat Intel",
     icon: ShieldAlert,
   },
   {
     path: "/incident-response",
-    label: "SOAR Response",
+    label: "3. SOAR Response",
     icon: Zap,
   },
   {
     path: "/vulnerability",
-    label: "GVR Vulnerability",
+    label: "4. GVR Vulnerability",
     icon: ShieldCheck,
   },
   {
     path: "/digital-twin",
-    label: "Digital Twin",
+    label: "5. Digital Twin",
     icon: Network,
-  },
-  {
-    path: "/drug-intelligence",
-    label: "Drug Intelligence",
-    icon: Shield,
   },
 
   {

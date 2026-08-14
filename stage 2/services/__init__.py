@@ -460,12 +460,19 @@ class UEBAService:
     @staticmethod
     def get_anomalies(entity_id: Optional[str] = None, category: Optional[str] = None, severity: Optional[str] = None, since: Optional[str] = None, limit: int = 50) -> List[Dict[str, Any]]:
         engine = get_behavioral_analytics_engine()
-        # Map parameters to engine filters
-        from rakshastra_core.models import Severity
-        from rakshastra_core.models.behavior import AnomalyCategory
-        
-        sev_obj = Severity(severity) if severity else None
-        cat_obj = AnomalyCategory(category) if category else None
+        sev_obj = None
+        if severity:
+            try:
+                sev_obj = Severity(severity)
+            except ValueError:
+                sev_obj = severity
+
+        cat_obj = None
+        if category:
+            try:
+                cat_obj = AnomalyCategory(category)
+            except ValueError:
+                cat_obj = category
         
         results = engine.get_anomalies(
             entity_id=entity_id,

@@ -57,8 +57,7 @@
 
 ## 🛡️ Overview
 
-**Rakshastra** is an enterprise-grade, autonomous AI cybersecurity engineer and defense operating system built specifically for Small & Medium Enterprises (SMEs), SOC analysts, and incident responders. It bridges the critical divide between multi-million-dollar enterprise security suites and resource-constrained security teams by automating continuous threat reconnaissance, incident response, Advanced Persistent Threat (APT) attribution, vulnerability prioritization, and security posture hardening.
-
+**Rakshastra** is an enterprise-grade, autonomous AI cybersecurity engineer and defense operating system built specifically for Small & Medium Enterprises (SMEs), SOC analysts, and incident responders. It bridges the critical divide between multi-million-dollar enterprise security suites and resource-constrained security teams by automating continuous threat reconnaissance, incident response, Advanced Persistent Threat (APT) attribution, vulnerability prioritization, and security.
 Powered by a **Gemini-first cognitive loop** with a 1M+ token context window, Rakshastra ingests and unifies multimodal intelligence (unstructured chat logs, network packet captures, syslog streams, and forensic screenshot OCR) with deterministic threat analysis tools, Markov-chain attack forecasting, D3.js force-directed blast-radius simulations, and decentralized Algorand x402 pay-per-query billing.
 
 ---
